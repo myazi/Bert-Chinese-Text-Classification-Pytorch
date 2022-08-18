@@ -1,4 +1,5 @@
 # coding: UTF-8
+import sys
 import numpy as np
 import torch
 import torch.nn as nn
@@ -48,6 +49,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
     model.train()
     for epoch in range(config.num_epochs):
         print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs))
+        print('Epoch [{}/{}]'.format(epoch + 1, config.num_epochs), file=sys.stderr)
         for i, (trains, labels) in enumerate(train_iter):
             outputs = model(trains)
             model.zero_grad()
@@ -70,6 +72,7 @@ def train(config, model, train_iter, dev_iter, test_iter):
                 time_dif = get_time_dif(start_time)
                 msg = 'Iter: {0:>6},  Train Loss: {1:>5.2},  Train Acc: {2:>6.2%},  Val Loss: {3:>5.2},  Val Acc: {4:>6.2%},  Time: {5} {6}'
                 print(msg.format(total_batch, loss.item(), train_acc, dev_loss, dev_acc, time_dif, improve))
+                print(msg.format(total_batch, loss.item(), train_acc, dev_loss, dev_acc, time_dif, improve), file=sys.stderr)
                 model.train()
             total_batch += 1
             if total_batch - last_improve > config.require_improvement:
@@ -90,8 +93,11 @@ def test(config, model, test_iter):
     test_acc, test_loss, test_report, test_confusion = evaluate(config, model, test_iter, test=True)
     msg = 'Test Loss: {0:>5.2},  Test Acc: {1:>6.2%}'
     print(msg.format(test_loss, test_acc))
+    print(msg.format(test_loss, test_acc), file=sys.stderr)
     print("Precision, Recall and F1-Score...")
+    print("Precision, Recall and F1-Score...", file=sys.stderr)
     print(test_report)
+    print(test_report, file=sys.stderr)
     print("Confusion Matrix...")
     print(test_confusion)
     time_dif = get_time_dif(start_time)
