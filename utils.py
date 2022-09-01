@@ -97,7 +97,7 @@ def build_dataset_withtag(config):
                         mask = [1] * pad_size
                         token_ids = token_ids[:pad_size]
                         seq_len = pad_size
-                
+
                 token = config.tokenizer.tokenize(tag)
                 token = [CLS] + token
                 seq_len_tag = len(token)
@@ -162,7 +162,7 @@ def build_dataset_line_withtag(config, line):
             mask = [1] * pad_size
             token_ids = token_ids[:pad_size]
             seq_len = pad_size
-                
+
     token = config.tokenizer.tokenize(tag)
     token = [CLS] + token
     seq_len_tag = len(token)
@@ -206,7 +206,6 @@ class DatasetIterater(object):
         #seq_len_tag = torch.LongTensor([_[5] for _ in datas]).to(self.device)
         #mask_tag = torch.LongTensor([_[6] for _ in datas]).to(self.device)
         #return (x, seq_len, mask, x_tag, seq_len_tag, mask_tag), y
-         
 
 
     def __next__(self):

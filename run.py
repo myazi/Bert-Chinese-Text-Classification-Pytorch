@@ -6,7 +6,6 @@ import numpy as np
 from train_eval import train, init_network
 from importlib import import_module
 import argparse
-#from utils import build_dataset, build_iterator, get_time_dif
 from utils import build_dataset, build_dataset_test, build_dataset_withtag, build_iterator, get_time_dif
 import os
 
@@ -17,7 +16,6 @@ args = parser.parse_args()
 
 
 if __name__ == '__main__':
-    #dataset = 'THUCNews'  # 数据集
     dataset = './data'
 
     model_name = args.model  # bert

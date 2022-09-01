@@ -41,13 +41,13 @@ if __name__ == '__main__':
     index2hangye = {}
     for i in range(len(class_list)):
         index2hangye[i] = class_list[i].strip().split(" ")[1]
-    
+
     i = 0
     test_datas = []
     line_list = []
     for line in sys.stdin:
         i += 1
-        line = line.strip('\n').split("\t")        
+        line = line.strip('\n').split("\t")
         if len(line) < 3: continue
         nid = line[0]
         title = line[1]
@@ -58,10 +58,9 @@ if __name__ == '__main__':
         #title+= stitle
         #tag = line[7].replace("|","").replace("]","").replace(","," ").replace("\"","")
         #stag = (line[36] + line[37] + line[38]).replace("/","")
-        
         #if title.strip() == '':continue
-        #print(str(title) + "\t" + str(tag)) 
-        
+        #print(str(title) + "\t" + str(tag))
+
         title_tag = '\t'.join([title, tag, "0"])
         test_data = build_dataset_line_withtag(config, title_tag)
         test_datas.append(test_data[0])
