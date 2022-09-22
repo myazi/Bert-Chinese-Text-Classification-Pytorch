@@ -89,6 +89,20 @@ python run.py --model ERNIE
  - 封装预测功能
 
 
+## 目录结构
+
+```
+train.sh: 训练执行脚本
+predict.sh: 预测执行脚本
+run.py: 模型训练入口，配置数据选择、模型选择
+run_predict.py: 模型预测入口
+utils.py: 数据读取相关
+train_eval.py: 参数初始化，模型训练，测试，评估
+models: finetune模型参数配置，网络结构配置
+bert_pretrain: bert模型词表和参数文件
+pytorch_pretrained: bert模型代码，直接输出Bert层向量
+```
+
 ## 对应论文
 [1] BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding  
 [2] ERNIE: Enhanced Representation through Knowledge Integration  
