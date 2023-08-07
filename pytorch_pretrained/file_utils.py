@@ -37,6 +37,7 @@ except (AttributeError, ImportError):
 
 CONFIG_NAME = "config.json"
 WEIGHTS_NAME = "pytorch_model.bin"
+#WEIGHTS_NAME = "post_training_bert_softmax.ckpt"
 
 logger = logging.getLogger(__name__)  # pylint: disable=invalid-name
 

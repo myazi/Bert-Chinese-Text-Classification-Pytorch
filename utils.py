@@ -3,8 +3,58 @@ import torch
 from tqdm import tqdm
 import time
 from datetime import timedelta
+import random
+import copy
 
 PAD, CLS = '[PAD]', '[CLS]'  # padding符号, bert中综合信息符号
+
+def build_dataset_post_training(config):
+    def load_dataset(path, pad_size=32):
+        contents = []
+        max_mask_per_seq = int(pad_size * 0.15)
+        with open(path, 'r', encoding='UTF-8') as f:
+            for line in tqdm(f):
+                lin = line.strip()
+                if not lin:
+                    continue
+                nid, label, label_text, content1,content2 = lin.split('_!_') #tnews
+                #nid, label, file_id, content1 = lin.split('_!_') #thucnews
+                content = content1 #+ content2
+                token = config.tokenizer.tokenize(content)
+                token = [CLS] + token
+                seq_len = len(token)
+                mask = []
+                token_ids = config.tokenizer.convert_tokens_to_ids(token)
+
+                if pad_size:
+                    if len(token) < pad_size:
+                        mask = [1] * len(token_ids) + [0] * (pad_size - len(token))
+                        token_ids += ([0] * (pad_size - len(token)))#[PAD] = [0]
+                    else:
+                        mask = [1] * pad_size
+                        token_ids = token_ids[:pad_size]
+                        seq_len = pad_size
+
+                labels = [-1] * pad_size
+                cur_mask_sum = 0
+                for index in range(1, len(token_ids)): #跳过CLS
+                    if cur_mask_sum > max_mask_per_seq or token_ids[index] == 0: break #每条句子最大mask上限、pad不mask
+                    rd = random.randint(1, 1000)
+                    if rd <= 150: # 15% 进行mask策略
+                        labels[index] = token_ids[index] #需要预测的mask词的label
+                        cur_mask_sum += 1
+                        if rd <= 120:
+                            token_ids[index] = config.tokenizer.convert_tokens_to_ids(config.tokenizer.tokenize('[MASK]'))[0] #其中80%获取MASK在词表中的id, mask掉的该词
+                        elif rd <= 135:
+                            token_ids[index] = random.randint(1, config.vocab_size - 1) # 其中10%随机替换
+
+                #print(str(token_ids) + "\t" + str(mask) + "\t" + str(labels))
+                contents.append((token_ids, labels, seq_len, mask))
+        return contents
+    train = load_dataset(config.train_path, config.pad_size)
+    dev = load_dataset(config.dev_path, config.pad_size)
+    test = load_dataset(config.test_path, config.pad_size)
+    return train, dev, test
 
 def build_dataset_test(config):
     def load_dataset(path, pad_size=32):
@@ -16,7 +66,7 @@ def build_dataset_test(config):
                     continue
                 #print(lin)
                 #label, label_text, id_text, content = lin.split('_!_')
-                nid, label,label_text, content1,content2 = lin.split('_!_')
+                nid, label, label_text, content1,content2 = lin.split('_!_')
                 if int(label) <= 104:
                     label = int(label) - 100
                 if int(label) > 105 and int(label) < 111:
@@ -33,7 +83,7 @@ def build_dataset_test(config):
                 if pad_size:
                     if len(token) < pad_size:
                         mask = [1] * len(token_ids) + [0] * (pad_size - len(token))
-                        token_ids += ([0] * (pad_size - len(token)))
+                        token_ids += ([0] * (pad_size - len(token)))#[PAD] = [0]
                     else:
                         mask = [1] * pad_size
                         token_ids = token_ids[:pad_size]
