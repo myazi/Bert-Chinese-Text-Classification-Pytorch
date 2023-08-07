@@ -205,7 +205,7 @@ class Attention(nn.Module):
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
         # [switch nx => n_state from Block to Attention to keep identical to TF implem]
         assert n_state % config.n_head == 0
-        self.register_buffer("bias", torch.tril(torch.ones(n_ctx, n_ctx)).view(1, 1, n_ctx, n_ctx))
+        self.register_buffer("bias", torch.tril(torch.ones(n_ctx, n_ctx)).view(1, 1, n_ctx, n_ctx))#Attention Mask 矩阵
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
@@ -218,7 +218,7 @@ class Attention(nn.Module):
             w = w / math.sqrt(v.size(-1))
         nd, ns = w.size(-2), w.size(-1)
         b = self.bias[:, :, ns-nd:ns, :ns]
-        w = w * b - 1e4 * (1 - b)
+        w = w * b - 1e4 * (1 - b)#b=0，则Attention矩阵val值-1e4
 
         w = nn.Softmax(dim=-1)(w)
         return torch.matmul(w, v)
@@ -277,7 +277,7 @@ class Block(nn.Module):
         self.mlp = MLP(4 * nx, config)
 
     def forward(self, x, layer_past=None):
-        a, present = self.attn(self.ln_1(x), layer_past=layer_past)
+        a, present = self.attn(self.ln_1(x), layer_past=layer_past)#对embedding后的向量进行layerNorm,然后attention
         x = x + a
         m = self.mlp(self.ln_2(x))
         x = x + m
@@ -294,7 +294,7 @@ class GPT2LMHead(nn.Module):
 
     def set_embeddings_weights(self, model_embeddings_weights):
         embed_shape = model_embeddings_weights.shape
-        self.decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False)
+        self.decoder = nn.Linear(embed_shape[1], embed_shape[0], bias=False) # 768 * vocab_size
         self.decoder.weight = model_embeddings_weights  # Tied weights
 
     def forward(self, hidden_state):

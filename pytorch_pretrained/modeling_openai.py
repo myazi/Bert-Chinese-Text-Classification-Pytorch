@@ -258,7 +258,7 @@ class Attention(nn.Module):
         n_state = nx  # in Attention: n_state=768 (nx=n_embd)
         # [switch nx => n_state from Block to Attention to keep identical to TF implem]
         assert n_state % config.n_head == 0
-        self.register_buffer("bias", torch.tril(torch.ones(n_ctx, n_ctx)).view(1, 1, n_ctx, n_ctx))
+        self.register_buffer("bias", torch.tril(torch.ones(n_ctx, n_ctx)).view(1, 1, n_ctx, n_ctx))#Attention Mask 矩阵，下三角矩阵
         self.n_head = config.n_head
         self.split_size = n_state
         self.scale = scale
@@ -274,7 +274,7 @@ class Attention(nn.Module):
         # w = w * self.bias + -1e9 * (1 - self.bias)  # TF implem method: mask_attn_weights
         # XD: self.b may be larger than w, so we need to crop it
         b = self.bias[:, :, : w.size(-2), : w.size(-1)]
-        w = w * b + -1e9 * (1 - b)
+        w = w * b + -1e9 * (1 - b)#b=0，则Attention矩阵val值-1e9
 
         w = nn.Softmax(dim=-1)(w)
         w = self.attn_dropout(w)
